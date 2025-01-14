@@ -1,16 +1,25 @@
-# MeteorScatter
+# Meteor Scatter
 
-This Project will create a FlaskServerApplication to display Meteors, which were processed by the Meteor-Detection. Or it can display your own recorded Meteor data if it maches the csv file structure
+This project was developed as part of a student project. The aim was to detect meteors using ML methods.
 
-A German README can be found [here](README_DE.md)
+The project consists of two parts: the Meteor Detection and the Flask Server. The meteor detection part is responsible for detecting meteors and saving the data in a CSV file. The Flask server application reads the CSV file and displays the data in a web interface.
 
-## Meteor-Detection
+![](resources/preview.png)
 
-see other README file in seperate folder `meteor_detection_scripts/`
+## Authors
 
-## FlaskServer
+- [Robert Heinrich](mailto:heinrich.robert93@yahoo.de)
+- [Sebastian Kolb](mailto:tbd@tbd.de)
+- [Maximilian Bundscherer](mailto:maximilian.bundscherer@th-nuernberg.de)
+- [Prof. Dr. Thomas Lauterbach](mailto:thomas.lauterbach@th-nuernberg.de)
 
-### Features Flask Server
+## Meteor Detection
+
+See other README file in seperate folder `meteor_detection_scripts/`
+
+## Flask Server
+
+### Features
 
 The Flask Server will process always the last full 30 days of csv-files and create multiple graphics. Build in Slideshow with
 
@@ -23,9 +32,9 @@ With every startup of app.py the work-data-csv-file ("final_dataframe") will be 
 
 Furthermore the `final_dataframe.csv` will be validated periotically (setup in `config.ini`: `#Scheduler Aktualisierungszeit CSV-Datensatz in minutes - schedule_interval = 2`) the validation process will search for the last entry and complare to the date of yesterday, no action if it matches, update file if there is a missmatch on the frontend the charts will be reloaded with a certain interval to be sure all displays are always up to date. (setup in `config.ini`: `#Aktualisierungszeit Website reload - reload_interval = 150000 - #60000 1min / 300000 5min`)
 
-### Basedate structure requirements
+### Data Requirements
 
-All transmitted date must be in the following structure to ensure 100% funktionality 
+All transmitted date must be in the following structure to ensure 100% funktionality:
 
 `name: "YYYYMMDD.csv" in folder "csv_files"`
 
@@ -41,64 +50,55 @@ Timestamp;Anzahl;Kritisch
 ### Structure
 
 ```
--Python Project folder
-	-csv_files 
-		-20241210.csv
-		-20241211.csv
-		-20241212.csv
-		...
-	-static
-		-css
-			-styles.css
-		-js
-			-script.js
-	-templates
-		-index.html
-	-app.py
-	-config.py
-	-config.ini
-	-database.py
-	-initapp.py
-	-plot.py
-	-(final_dataframe.csv)
+-csv_files 
+	-20241210.csv
+	-20241211.csv
+	-20241212.csv
+	...
+-static
+	...
+-templates
+	...
+-app.py
+-config.py
+-config.ini
+-database.py
+-initapp.py
+-plot.py
+-(final_dataframe.csv)
 ```
 
 ### Description
 
-`app.py` (run for main Application)
+`app.py` (run for main App)
 
-mainapplication with all Flask app.routes 
-IP adress and port can be set in the following line.
-Line 174: app.run(host="0.0.0.0", port=5000, debug=debug_value)
+Main-App with all Flask app.routes. The IP adress and port can be set in the following line: `Line 174: app.run(host="0.0.0.0", port=5000, debug=debug_value)`
 
 `config.py`
 
-settings and fallback values as well as config_read and config_get function
+Settings and fallback values as well as `config_read` and `config_get` functions
 
 `config.ini`
 
-manipulate settings here if you are not a programmer and just the user to make it more like you need it. rerun `app.py` and reload Website after changes.
+Manipulate settings here if you are not a programmer and just the user to make it more like you need it. rerun `app.py` and reload Website after changes.
 
 `database.py`
 
-processes all data provided by the Grabber and save in `final_dataframe.csv`
+Processes all data provided by the Grabber and save in `final_dataframe.csv`
 
 `initapp.py`
 
-to initialise Flask App before start
+Initialise Flask App before start
 
 `plot.py`
 
-crates all charts
-if needed resolution of the charts can be manipulated here
-needs to be changed for each charts seperatly.
-(300dpi and figsize 10,6 will create a figure with resolution of 3000x1800px, can be reduced if less performace is needed)
+Creates all charts. If needed resolution of the charts can be manipulated here. Needs to be changed for each charts seperatly. (300dpi and figsize 10,6 will create a figure with resolution of 3000x1800px, can be reduced if less performace is needed)
 
 ### Install
 
 ### Debug
 
-in `config.py` change following line, to get more Debug/Logging printout
+In `config.py` change following line, to get more Debug/Logging printout:
 
 ```
 logging.XXXXXXXXXX   ERROR/WARNING/INFO options

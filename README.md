@@ -34,7 +34,7 @@ Furthermore the `final_dataframe.csv` will be validated periotically (setup in `
 
 ### Data Requirements
 
-All transmitted date must be in the following structure to ensure 100% funktionality:
+All transmitted date must be in the following structure to ensure 100% functionality:
 
 `name: "YYYYMMDD.csv" in folder "csv_files"`
 
@@ -70,31 +70,33 @@ Timestamp;Anzahl;Kritisch
 
 ### Description
 
-`app.py` (run for main App)
+`app.py`: (run for main App)
 
 Main-App with all Flask app.routes. The IP adress and port can be set in the following line: `Line 174: app.run(host="0.0.0.0", port=5000, debug=debug_value)`
 
-`config.py`
+`config.py`:
 
 Settings and fallback values as well as `config_read` and `config_get` functions
 
-`config.ini`
+`config.ini`:
 
 Manipulate settings here if you are not a programmer and just the user to make it more like you need it. rerun `app.py` and reload Website after changes.
 
-`database.py`
+`database.py`:
 
 Processes all data provided by the Grabber and save in `final_dataframe.csv`
 
-`initapp.py`
+`initapp.py`:
 
 Initialise Flask App before start
 
-`plot.py`
+`plot.py`:
 
 Creates all charts. If needed resolution of the charts can be manipulated here. Needs to be changed for each charts seperatly. (300dpi and figsize 10,6 will create a figure with resolution of 3000x1800px, can be reduced if less performace is needed)
 
 ### Install
+
+Create a virtual environment and install the requirements (`requirements.txt`).
 
 ### Debug
 
@@ -109,7 +111,3 @@ formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 ```
-
-## License
-
-This project is licensed under the MIT License.

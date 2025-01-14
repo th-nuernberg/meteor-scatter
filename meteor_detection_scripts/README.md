@@ -110,7 +110,3 @@ This project comprises two main Python scripts that work together to detect and 
 
 - Optimize ORB and DBSCAN parameters for better burst detection.
 - Integrate real-time burst visualization.
-
-## License
-
-This project is licensed under the MIT License.

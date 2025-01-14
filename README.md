@@ -80,7 +80,7 @@ Settings and fallback values as well as `config_read` and `config_get` functions
 
 `config.ini`:
 
-Manipulate settings here if you are not a programmer and just the user to make it more like you need it. rerun `app.py` and reload Website after changes.
+Manipulate settings here if you are not a programmer and just the user to make it more like you need it. Rerun `app.py` and reload Website after changes.
 
 `database.py`:
 

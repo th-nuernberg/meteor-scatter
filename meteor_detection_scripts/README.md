@@ -3,6 +3,7 @@
 This project comprises two main Python scripts that work together to detect and classify meteor bursts from audio spectrograms.
 
 ## Overview
+
 1. **prime_detection.py**
    - Captures audio in 30-second segments using the TwitchRealtimeHandler.
    - Creates spectrograms with the `plot_spectrogram` function.
@@ -16,12 +17,15 @@ This project comprises two main Python scripts that work together to detect and 
      - **Non-critical bursts**: Bursts lasting less than 0.5 seconds.
 
 ## prime_detection.py
+
 ### Key Features
+
 - **Audio Recording**: Captures live audio streams from a Twitch source.
 - **Spectrogram Generation**: Converts audio data into spectrogram images for processing.
 - **CSV Logging**: Logs results, including the count of critical and non-critical bursts, to a daily CSV file.
 
 ### Workflow
+
 1. **Audio Capture**:
    - Records 30-second audio segments from a specified Twitch stream.
    - Saves the audio as a WAV file.
@@ -39,7 +43,9 @@ This project comprises two main Python scripts that work together to detect and 
    - Creates a new CSV file each day.
 
 ## detector_and_classification.py
+
 ### Key Features
+
 - **ORB Detection**:
   - Uses the ORB algorithm to detect keypoints in the spectrogram image.
 - **DBSCAN Clustering**:
@@ -51,6 +57,7 @@ This project comprises two main Python scripts that work together to detect and 
   - Classifies bursts based on a duration threshold of 0.5 seconds.
 
 ### Workflow
+
 1. **Feature Detection**:
    - Reads a spectrogram image.
    - Detects keypoints using the ORB algorithm.
@@ -64,15 +71,19 @@ This project comprises two main Python scripts that work together to detect and 
    - Returns lists of critical and non-critical bursts.
 
 ### Output
+
 - Annotated spectrogram image with detected bursts.
 - Lists of critical and non-critical bursts.
 
 ## Installation
+
 ### Prerequisites
+
 - Python 3.8+
 - Required libraries: `numpy`, `opencv-python`, `matplotlib`, `scikit-learn`, `pyaudio`, `wave`, `twitchrealtimehandler`, `pandas`.
 
 ### Setup
+
 1. Clone this repository.
 2. Install dependencies using:
    ```bash
@@ -80,6 +91,7 @@ This project comprises two main Python scripts that work together to detect and 
    ```
 
 ## Usage
+
 1. **Run `prime_detection.py`**:
    ```bash
    python prime_detection.py
@@ -90,12 +102,15 @@ This project comprises two main Python scripts that work together to detect and 
    - Modify `eps` and `min_samples` in `detect_and_cluster_bursts` for DBSCAN clustering as needed.
 
 ## Output
+
 - Hourly and daily burst counts logged to CSV files.
 - Annotated spectrogram images saved as `spectrogram2detected.jpg`.
 
 ## Future Work
+
 - Optimize ORB and DBSCAN parameters for better burst detection.
 - Integrate real-time burst visualization.
 
 ## License
+
 This project is licensed under the MIT License.

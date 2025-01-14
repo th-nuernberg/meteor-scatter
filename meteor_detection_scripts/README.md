@@ -75,7 +75,7 @@ This project comprises two main Python scripts that work together to detect and 
 - Annotated spectrogram image with detected bursts.
 - Lists of critical and non-critical bursts.
 
-## Installation
+## Installation and Run
 
 ### Prerequisites
 
@@ -84,13 +84,15 @@ This project comprises two main Python scripts that work together to detect and 
 
 ### Setup
 
-1. Clone this repository.
+1. Clone this repository. Set up a new virtual environment and activate it.
 2. Install dependencies using:
    ```bash
    pip install -r requirements.txt
    ```
 
-## Usage
+### Usage
+
+Activate your new virtual environment.
 
 1. **Run `prime_detection.py`**:
    ```bash
@@ -101,7 +103,7 @@ This project comprises two main Python scripts that work together to detect and 
 2. **Adjust Detection Parameters**:
    - Modify `eps` and `min_samples` in `detect_and_cluster_bursts` for DBSCAN clustering as needed.
 
-## Output
+### Output
 
 - Hourly and daily burst counts logged to CSV files.
 - Annotated spectrogram images saved as `spectrogram2detected.jpg`.

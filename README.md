@@ -15,7 +15,7 @@ The project consists of two parts: the Meteor Detection and the Flask Server. Th
 
 ## Meteor Detection
 
-See other README file in seperate folder `meteor_detection_scripts/`
+See other README file and subset in seperate folder `meteor_detection_scripts/`
 
 ## Flask Server
 
@@ -25,16 +25,16 @@ The Flask Server will process always the last full 30 days of csv-files and crea
 
 - daily display with hourly resolution of all Meteors and over critical ones
 - 7-days-overfew with the sum of each day of all Meteors and over critical ones
-- 30-days-overfew with the sum of each day of all Meteors and over critical ones a separate
-- gauge-chart displaying the average hourly rate of the last day
+- 30-days-overfew with the sum of each day of all Meteors and over critical ones
+- a separate gauge-chart displaying the average hourly rate of the last day
 
-With every startup of app.py the work-data-csv-file ("final_dataframe") will be verified and checked to its current status. Should there be missing data sets, it will be displayed at the bottom of the website Missing hours in single days will be skipped and not displayed in the charts.
+With every startup of `app.py` the work-data-csv-file `final_dataframe.csv` will be verified and checked to its current status. Should there be missing data sets, it will be displayed at the bottom of the website Missing hours in single days will be skipped and not displayed in the charts.
 
 Furthermore the `final_dataframe.csv` will be validated periotically (setup in `config.ini`: `#Scheduler Aktualisierungszeit CSV-Datensatz in minutes - schedule_interval = 2`) the validation process will search for the last entry and complare to the date of yesterday, no action if it matches, update file if there is a missmatch on the frontend the charts will be reloaded with a certain interval to be sure all displays are always up to date. (setup in `config.ini`: `#Aktualisierungszeit Website reload - reload_interval = 150000 - #60000 1min / 300000 5min`)
 
 ### Data Requirements
 
-All transmitted date must be in the following structure to ensure 100% functionality:
+All data must be in the following structure to ensure 100% functionality:
 
 `name: "YYYYMMDD.csv" in folder "csv_files"`
 
@@ -72,11 +72,11 @@ Timestamp;Anzahl;Kritisch
 
 `app.py`: (run for main App)
 
-Main-App with all Flask app.routes. The IP adress and port can be set in the following line: `Line 174: app.run(host="0.0.0.0", port=5000, debug=debug_value)`
+The main App with all Flask routes. The IP adress and port can be set in the following line: `Line 174: app.run(host="0.0.0.0", port=5000, debug=debug_value)`
 
 `config.py`:
 
-Settings and fallback values as well as `config_read` and `config_get` functions
+Settings and fallback values as well as `config_read` and `config_get` functions.
 
 `config.ini`:
 
@@ -84,19 +84,23 @@ Manipulate settings here if you are not a programmer and just the user to make i
 
 `database.py`:
 
-Processes all data provided by the Grabber and save in `final_dataframe.csv`
+Processes all data provided by the Grabber and save in `final_dataframe.csv`.
 
 `initapp.py`:
 
-Initialise Flask App before start
+Initialise Flask App before start.
 
 `plot.py`:
 
-Creates all charts. If needed resolution of the charts can be manipulated here. Needs to be changed for each charts seperatly. (300dpi and figsize 10,6 will create a figure with resolution of 3000x1800px, can be reduced if less performace is needed)
+Creates all charts. If needed resolution of the charts can be manipulated here. Needs to be changed for each charts seperatly. (300dpi and figsize 10,6 will create a figure with resolution of 3000x1800px, can be reduced if less performace is needed).
 
 ### Install
 
-Create a virtual environment and install the requirements (`requirements.txt`).
+Create a virtual environment, activate it, and install the requirements (`requirements.txt`).
+
+### Run
+
+Activate the virtual environment and run `app.py`.
 
 ### Debug
 

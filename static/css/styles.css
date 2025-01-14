@@ -1,0 +1,121 @@
+/* Allgemeiner Body-Stil */
+body {
+        min-height: 100vh;
+    background: url('../hintergrundki1.jpg'), linear-gradient(to bottom, #000, #333) ;
+    background-size: cover ;
+    color: white;
+}
+
+/* Überschriften */
+h1 {
+    font-size: 72px;
+    color: #C72426; /* Ohm logo Farbe für H1 */
+    text-align: left;
+    margin: 20px 0;
+}
+
+.datetime,
+h3 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 10px 0;
+    text-align: center;
+    color: white;
+}
+h4 {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px 0;
+    text-align: left;
+    color: white;
+}
+
+.box {
+    flex: 1;
+    box-sizing: border-box;
+    padding: 0; /* Keine Abstände innerhalb der Box */
+    margin: 0; /* Keine äußeren Abstände */
+}
+
+/* -------------------- container Styling -------------------- */
+/* Grundlegende Einstellungen für alle Slides */
+.mySlides {
+    position: relative;
+    width: 100%;
+    height: auto;
+    top: 0;
+    left: 0;
+    display: none; /* Standardmäßig versteckt */
+    transition: opacity 1s ease-in-out; /* Weicher Übergang */
+}
+
+/* Aktives Slide mit einem Fade-In-Effekt */
+.mySlides.fade {
+    display: block; /* Slide erscheint */
+    opacity: 1; /* Volle Sichtbarkeit */
+}
+
+/* Unsichtbares Slide mit einem Fade-Out-Effekt */
+.mySlides {
+    opacity: 0; /* Unsichtbar, wird aber nicht mit display versteckt */
+}
+
+/* -------------------- zeiger spezifisches Styling -------------------- */
+
+.zeiger-container .slideshow-container {
+    margin: 0 auto;
+    display: inline-block; /* Verhindert zentrierendes Verhalten durch Flexbox */
+    width: 100%; /* Fülle die gesamte Spaltenbreite */
+    height: auto; /* Automatische Anpassung der Höhe */
+}
+
+
+/* -------------------- Slideshow spezifisches Styling -------------------- */
+/* Slideshow-Container */
+.slideshow-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    background-color: #f3f3f3;
+    text-align: center;
+}
+
+.slideshow-controls {
+    margin-top: 20px;
+    text-align: center;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #4CAF50; /* Grün */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #45a049; /* Dunkleres Grün beim Hover */
+}
+
+/* Media Queries für Responsivität */
+@media (max-width: 992px) {
+    /* Kleine Bildschirme: Elemente untereinander */
+    .row.g-0 {
+        flex-direction: column;
+    }
+
+@media (max-width: 576px) {
+    h1 {
+        font-size: 48px; /* Schriftgröße auf Mobilgeräten verkleinern */
+    }
+
+    .slideshow-container img,
+    .zeiger-container img {
+        border-radius: 5px; /* Radius für kleinere Bildschirme verringern */
+    }
+}
+

@@ -2,7 +2,7 @@
 
 This project was developed as part of a student project. The aim was to detect and classify meteors using ML methods.
 
-The project consists of two parts: the **Meteor Detection & Classifcation** and the **Flask Server**. The meteor detection & classifcation part is responsible for saving the detections in a CSV file. The Flask Server application reads the CSV file and displays the data in a web interface.
+The project consists of two parts: the **Meteor Detection & Classification** and the **Flask Server**. The meteor detection & classification part is responsible for saving the detections in a CSV file. The Flask Server application reads the CSV file and displays the data in a web interface.
 
 ![](resources/preview.png)
 

@@ -123,10 +123,11 @@ else:
 
 while True:
     current_date = datetime.now().strftime('%Y-%m-%d')
+    log_time_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     print()
     print("[INFO] Starte neuen Durchlauf...")
-    print(f"Startzeit: {start_time} / Current Date {current_date}\n")
+    print(f"Startzeit: {start_time} / Current Date {current_date} / Current Time {log_time_str}\n")
 
     # Schritt 1: Audiosegment erfassen
     start_time_meas("grab_audio")

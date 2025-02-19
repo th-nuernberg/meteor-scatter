@@ -156,6 +156,7 @@ while True:
                 channels=1,  # number of channels
                 dtype=np.int16  # quality of the audio could be [np.int16, np.int32, np.float32, np.float64]
             )
+            print("Neuer Stream wurde gestartet.")
         except Exception as e:
             print(f"Fehler beim Neustart des Streams: {e}")
             time.sleep(5)

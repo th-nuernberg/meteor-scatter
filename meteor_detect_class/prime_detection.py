@@ -18,12 +18,6 @@ C_DISPLAY = False
 C_SAMPLE_RATE = 5000
 C_SEG_LEN = 30
 
-# TODO
-# TODO HEALTH CHECK !!!
-# TODO CSV HEADER NEU
-# TODO Startzeit LOG
-# TODO NOT GIVE STREAM = CRASH
-
 # Assert Env
 assert os.path.exists(C_FILE_PATH_OUT), f"Path not found: {C_FILE_PATH_OUT}"
 
@@ -41,6 +35,7 @@ def end_time_meas(idk: str):
     print(f"Time for {idk}: {time.total_seconds()} seconds")
 
 
+# Augio Grabber
 audio_grabber = twitchrealtimehandler.TwitchAudioGrabber(
     twitch_url="https://www.twitch.tv/astronomiemuseum",
     # twitch_url="https://www.twitch.tv/noway4u_sir",
@@ -52,6 +47,7 @@ audio_grabber = twitchrealtimehandler.TwitchAudioGrabber(
 )
 
 
+# Proc Spec
 def plot_spectrogram(iq_segment, fs, display=True, vmin=10, vmax=30):
     # Um Rauschgrund zu entfernen wird die Rauschleistung berechnet:
     NFFT = 2048
@@ -92,6 +88,8 @@ def plot_spectrogram(iq_segment, fs, display=True, vmin=10, vmax=30):
     plt.close()
 
 
+# Process Loop
+
 fs = C_SAMPLE_RATE
 n_critical = 0
 n_non_critical = 0
@@ -102,7 +100,6 @@ save_interval = timedelta(minutes=59.8)  # Intervall von 1h
 save_interval2 = timedelta(hours=24)  # Intervall von 24 h
 
 previous_date = datetime.now().strftime('%Y-%m-%d')
-# output_file = "values_sum.txt"  # Datei zum Speichern der Summe
 # Aktuelles Datum im Format YYYYMMDD
 date_string = datetime.now().strftime("%Y%m%d")
 separator = ";"
@@ -118,11 +115,9 @@ if not os.path.exists(file_name):
 else:
     print(f"Datei {file_name} existiert bereits.")
 
-#
-
 while True:
     current_date = datetime.now().strftime('%Y-%m-%d')
-    print(f"Startzeit: {start_time}\n")
+    print(f"Startzeit: {start_time} / Current Time {current_date}\n")
 
     # Schritt 1: Audiosegment erfassen
     start_time_meas("grab_audio")
@@ -136,17 +131,24 @@ while True:
         continue
     print(f"Audiosegment Größe: {audio_segment.shape}")
     if audio_segment.shape[0] != C_SEG_LEN * C_SAMPLE_RATE:
-        print("Fehler: Das Audiosegment ist fehlerhaft. Starte Stream neu")
-        audio_grabber.terminate()
-        time.sleep(5)
-        audio_grabber = twitchrealtimehandler.TwitchAudioGrabber(
-            twitch_url="https://www.twitch.tv/astronomiemuseum",
-            blocking=True,  # wait until a segment is available
-            segment_length=C_SEG_LEN,  # segment length in seconds
-            rate=C_SAMPLE_RATE,  # sampling rate of the audio
-            channels=1,  # number of channels
-            dtype=np.int16  # quality of the audio could be [np.int16, np.int32, np.float32, np.float64]
-        )
+        try:
+            print("Fehler: Das Audiosegment ist fehlerhaft. Starte Stream neu...")
+            try:
+                audio_grabber.terminate()
+            except Exception as e:
+                print(f"Fehler beim Terminieren des alten Streams: {e}")
+            time.sleep(5)
+            audio_grabber = twitchrealtimehandler.TwitchAudioGrabber(
+                twitch_url="https://www.twitch.tv/astronomiemuseum",
+                blocking=True,  # wait until a segment is available
+                segment_length=C_SEG_LEN,  # segment length in seconds
+                rate=C_SAMPLE_RATE,  # sampling rate of the audio
+                channels=1,  # number of channels
+                dtype=np.int16  # quality of the audio could be [np.int16, np.int32, np.float32, np.float64]
+            )
+        except Exception as e:
+            print(f"Fehler beim Neustart des Streams: {e}")
+            time.sleep(5)
         continue
     end_time_meas("grab_audio")
 

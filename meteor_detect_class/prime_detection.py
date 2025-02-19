@@ -123,6 +123,9 @@ else:
 
 while True:
     current_date = datetime.now().strftime('%Y-%m-%d')
+
+    print()
+    print("[INFO] Starte neuen Durchlauf...")
     print(f"Startzeit: {start_time} / Current Date {current_date}\n")
 
     # Schritt 1: Audiosegment erfassen
@@ -179,7 +182,7 @@ while True:
     n_critical += len(critical_bursts)
     n_non_critical += len(non_critical_bursts)
     print(f"Anzahl kritischer Bursts in dieser Stunde: {n_critical}")
-    print(f"Anzahl nicht kritischer Bursts in dieser Stunde: {n_non_critical}\n")
+    print(f"Anzahl nicht kritischer Bursts in dieser Stunde: {n_non_critical}")
 
     # Schritt 5: Ueberpruefen, ob 1 Stunden vergangen ist
     if datetime.now() - start_time >= save_interval:

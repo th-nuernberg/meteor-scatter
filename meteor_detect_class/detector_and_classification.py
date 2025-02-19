@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 
 
-# TODO VAR CONF
 def detect_and_cluster_bursts(image_path, eps=30, min_samples=5, display=True):
     # Bild einlesen und in Graustufen konvertieren
     image = cv2.imread(image_path, cv2.IMREAD_COLOR)

@@ -12,7 +12,10 @@ import twitchrealtimehandler
 import detector_and_classification as detection
 import os
 
-C_FILE_PATH_OUT = "/home/meteor/Desktop/testMSOUT/"
+C_FILE_PATH_OUT = "/home/meteor/Desktop/testMSOUT/"  # TODO CSV OUT PATH
+C_MS_SPEC_CUT_FACTOR = 8  # TODO Noise Filter
+C_MS_EPSILON = 30  # TODO Cluster Filter
+
 C_FILE_PATH_SPEC = "/tmp/spectrogram2.jpg"
 C_DISPLAY = False
 C_SAMPLE_RATE = 5000
@@ -72,7 +75,7 @@ def plot_spectrogram(iq_segment, fs, display=True, vmin=10, vmax=30):
     Pxx_db[np.isinf(Pxx_db)] = -np.inf
 
     plt.imshow(Pxx_db, aspect='auto', origin='lower', extent=[bins[0], bins[-1], freqs[0], freqs[-1]],
-               vmin=power_density_db_hz / factor + 8, vmax=40)
+               vmin=power_density_db_hz / factor + C_MS_SPEC_CUT_FACTOR, vmax=40)
     # plt.xlabel('Time [s]')
     # plt.ylabel('Frequency [Hz]')
     # plt.title('Spectrogram 25 Seconds')
@@ -117,7 +120,7 @@ else:
 
 while True:
     current_date = datetime.now().strftime('%Y-%m-%d')
-    print(f"Startzeit: {start_time} / Current Time {current_date}\n")
+    print(f"Startzeit: {start_time} / Current Date {current_date}\n")
 
     # Schritt 1: Audiosegment erfassen
     start_time_meas("grab_audio")
@@ -155,7 +158,7 @@ while True:
     # Schritt 2: Spektrogramm plotten
     start_time_meas("plot_spectrogram")
     print("Erstelle Spektrogramm...")
-    plot_spectrogram(audio_segment, fs, DISPLAY)
+    plot_spectrogram(audio_segment, fs, C_DISPLAY)
     print("Spektrogramm wurde erstellt.")
     del audio_segment
     end_time_meas("plot_spectrogram")
@@ -165,7 +168,7 @@ while True:
     image_path1 = C_FILE_PATH_SPEC
     print("Starte Burst-Erkennung und Clusterbildung...")
     bursts, unique_labels, burst_positions, critical_bursts, non_critical_bursts = detection.detect_and_cluster_bursts(
-        image_path1, display=DISPLAY)
+        image_path1, display=C_DISPLAY, eps=C_MS_EPSILON)
     print("Burst-Erkennung und Clusterbildung abgeschlossen.")
     end_time_meas("detect_and_cluster_bursts")
 

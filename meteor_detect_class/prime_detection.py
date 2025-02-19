@@ -13,8 +13,11 @@ import detector_and_classification as detection
 import os
 
 C_FILE_PATH_OUT = "/home/meteor/Desktop/testMSOUT/"  # TODO CSV OUT PATH
+
 C_MS_SPEC_CUT_FACTOR = 8  # TODO Noise Filter
-C_MS_EPSILON = 30  # TODO Cluster Filter
+
+C_MS_CLUSTER_MIN_SAMPLES = 5  # TODO Cluster Filter
+C_MS_CLUSTER_EPSILON = 30  # TODO Cluster Filter
 
 C_FILE_PATH_SPEC = "/tmp/spectrogram2.jpg"
 C_DISPLAY = False
@@ -168,7 +171,7 @@ while True:
     image_path1 = C_FILE_PATH_SPEC
     print("Starte Burst-Erkennung und Clusterbildung...")
     bursts, unique_labels, burst_positions, critical_bursts, non_critical_bursts = detection.detect_and_cluster_bursts(
-        image_path1, display=C_DISPLAY, eps=C_MS_EPSILON)
+        image_path1, display=C_DISPLAY, eps=C_MS_CLUSTER_EPSILON, min_samples=C_MS_CLUSTER_MIN_SAMPLES)
     print("Burst-Erkennung und Clusterbildung abgeschlossen.")
     end_time_meas("detect_and_cluster_bursts")
 

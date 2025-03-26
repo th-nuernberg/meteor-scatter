@@ -3,6 +3,7 @@ import os
 import base64
 from venv import create
 import matplotlib
+
 matplotlib.use('Agg')  # Sicherstellen, dass Agg-Backend verwendet wird
 import time
 import threading
@@ -21,21 +22,21 @@ import asyncio
 from flask_apscheduler import APScheduler
 
 ###############################################################################################
-#configparser für config.ini laden mit fallback Werten versehen
+# configparser für config.ini laden mit fallback Werten versehen
 config = configparser.ConfigParser()
+
 
 ############################ konfigdatei laden    ######################################
 
 class Config:
-
     # Fallback-Werte setzen
     DEFAULT_SECTION = "DEFAULT"
 
     # Dynamisch ermitteln, wo der Hauptordner liegt
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    DEFAULT_CSV_FOLDER = os.path.join(BASE_DIR, "csv_files")
-    DEFAULT_CSV_STORAGE_PATH = "final_dataframe.csv"
+    # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+    DEFAULT_CSV_FOLDER = "/home/meteor/Desktop/testMSOUT/"  # TODO Change this
+    DEFAULT_CSV_STORAGE_PATH = "final_dataframe.csv"
 
     DEFAULT_DEBUG = False
     DEFAULT_UNDERE_GRENZE = 0
@@ -58,6 +59,7 @@ class Config:
 
     SCHEDULER_API_ENABLE = True
 
+
 CURRENT_DF = None
 
 ###################################################################
@@ -77,8 +79,8 @@ formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
-###################################################################
 
+###################################################################
 
 
 def calculate_last_month():
@@ -87,6 +89,7 @@ def calculate_last_month():
     end_date = today - timedelta(days=1)  # Gestern (kalenderbezogen, 0 Uhr)
     start_date = end_date - timedelta(days=30)  # 30 Tage vor gestern (ebenfalls kalenderbezogen)
     return start_date, end_date
+
 
 def config_get(section, key, fallback=None):
     """

@@ -34,7 +34,6 @@ class Config:
 
     # Dynamisch ermitteln, wo der Hauptordner liegt
     # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
     DEFAULT_CSV_FOLDER = "/home/meteor/Desktop/testMSOUT/"  # TODO Change this
     DEFAULT_CSV_STORAGE_PATH = "final_dataframe.csv"
 
@@ -50,7 +49,6 @@ class Config:
     DEFAULT_RELOAD_INTERVAL = 1200
     DEFAULT_TITLE_PADDING = 21
     DEFAULT_SCHEDULE_INTERVAL = 60
-    DEFAULT_SLIDESHOW_INTERVAL = 14000
 
     PLOT_SETTINGS_SECTION = "PlotSettings"
 
@@ -74,7 +72,7 @@ logging.basicConfig(
 
 # Logs in der Konsole ausgeben, StreamHandler hinzufügen:
 console = logging.StreamHandler()
-console.setLevel(logging.WARNING)  # Konsole für nur `INFO`-Level oder höher aktivieren
+console.setLevel(logging.INFO)  # Konsole für nur `INFO`-Level oder höher aktivieren
 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
@@ -104,17 +102,7 @@ def config_get(section, key, fallback=None):
         elif isinstance(fallback, float):
             return float(value)
         elif isinstance(fallback, bool):
-            # Konvertiere Werte zu Boolean
-            try:
-                if value.lower() in ("true", "1", "yes", "on"):
-                    return True
-                elif value.lower() in ("false", "0", "no", "off"):
-                    return False
-                else:
-                    raise ValueError(f"Ungültiger boolescher Wert: '{value}'")
-            except AttributeError:  # Wenn 'value' keine String-Operation erlaubt (NoneType)
-                pass
-            return fallback
+            return value.lower() in ("true", "1", "yes", "on")  # Boolean-Konvertierung
         else:
             return value  # Standardmäßig als String übernehmen
 

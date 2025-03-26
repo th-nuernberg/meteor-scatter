@@ -12,7 +12,10 @@ import twitchrealtimehandler
 import detector_and_classification as detection
 import os
 
+# TODO ALERTS
+
 C_FILE_PATH_OUT = "/home/meteor/Desktop/testMSOUT/"  # TODO CSV OUT PATH
+C_FILE_PATH_OUT_SPEC = "/home/meteor/Desktop/testMSOUTSpec/"  # TODO SPEC OUT PATH
 
 C_MS_SPEC_CUT_FACTOR = 8  # TODO Noise Filter
 
@@ -26,6 +29,7 @@ C_SEG_LEN = 30
 
 # Assert Env
 assert os.path.exists(C_FILE_PATH_OUT), f"Path not found: {C_FILE_PATH_OUT}"
+assert os.path.exists(C_FILE_PATH_OUT_SPEC), f"Path not found: {C_FILE_PATH_OUT_SPEC}"
 
 # Time Measurement
 time_meas_dict = {}
@@ -129,6 +133,9 @@ while True:
     print("[INFO] Starte neuen Durchlauf...")
     print(f"Startzeit: {start_time} / Current Date {current_date} / Current Time {log_time_str}\n")
 
+    # time.sleep(2)
+    # raise Exception("Test Error")
+
     # Schritt 1: Audiosegment erfassen
     start_time_meas("grab_audio")
     try:
@@ -156,10 +163,13 @@ while True:
                 channels=1,  # number of channels
                 dtype=np.int16  # quality of the audio could be [np.int16, np.int32, np.float32, np.float64]
             )
+
             print("Neuer Stream wurde gestartet.")
         except Exception as e:
             print(f"Fehler beim Neustart des Streams: {e}")
+            # TODO HANDLING - now via watchog
             time.sleep(5)
+            raise Exception("Fehler beim Neustart des Streams !!!")
         continue
     end_time_meas("grab_audio")
 
@@ -185,6 +195,12 @@ while True:
     n_non_critical += len(non_critical_bursts)
     print(f"Anzahl kritischer Bursts in dieser Stunde: {n_critical}")
     print(f"Anzahl nicht kritischer Bursts in dieser Stunde: {n_non_critical}")
+    if len(critical_bursts) > 0 or len(non_critical_bursts) > 0:
+        # Copy spec to out
+        print("Kopiere Spektrogramm... (hat etwas detektiert)")
+        spec_fp_timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        spec_fp = f"{C_FILE_PATH_OUT_SPEC}{spec_fp_timestamp}-{len(critical_bursts)}-{len(non_critical_bursts)}.jpg"
+        os.system(f"cp {C_FILE_PATH_SPEC} {spec_fp}")
 
     # Schritt 5: Ueberpruefen, ob 1 Stunden vergangen ist
     if datetime.now() - start_time >= save_interval:

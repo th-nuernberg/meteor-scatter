@@ -42,7 +42,8 @@ Activate your new virtual environment and run:
 ```
 (Change dir to this subfolder)
 source venv_ms_detclass/bin/activate
-python prime_detection.py
+python prime_detection.py (old)
+./prime_watchdog.sh
 ```
 
 ### Output

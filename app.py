@@ -32,6 +32,7 @@ from initapp import initialize_app
 
 #####################################################
 
+
 # Werte aus der Config-Klasse in Flask-Anwendung laden  -  Abruf über app.config
 app = initialize_app()
 setup_matplotlib_font()
@@ -59,6 +60,12 @@ scheduler.add_job(
     minutes=interval,  # Intervall in Minuten
     max_instances=1
 )
+
+
+@app.route('/config/slideshow_interval')
+def get_interval():
+    slideshow_interval = config_get('DEFAULT', 'slideshow_interval')
+    return jsonify({'slideshow_interval': slideshow_interval})  # Liefere den Wert als JSON zurück
 
 
 @app.route("/update_csv", methods=["POST"])
@@ -108,7 +115,11 @@ def index():
 def dynamischer_inhalt():
     """API-Route für den Abruf von dynamischen Inhalten"""
     missing_days = check_missing_days(scan_folder(Config.DEFAULT_CSV_FOLDER))
-    return jsonify({'missing_days': missing_days})
+    response = jsonify({'missing_days': missing_days})
+    response.headers['Cache-Control'] = 'no-store, must-revalidate'  # Kein Zwischenspeichern
+    response.headers['Pragma'] = 'no-cache'  # Ältere Browser
+    response.headers['Expires'] = '0'  # Immer abgelaufen
+    return response
 
 
 # Dynamische Chart-Routen
@@ -159,8 +170,10 @@ def home():
 
 ###################################################################################################################
 
+debug_value = config_get('DEFAULT', 'debug').lower() == 'true'
+
 ###################################################################################################################
 if __name__ == '__main__':
     scheduler.start()  # Startet den Scheduler im Hintergrund
 
-    app.run(host="0.0.0.0", port=5000, debug=config_get('DEFAULT', 'DEFAULT_DEBUG'))
+    app.run(host="0.0.0.0", port=5000, debug=debug_value)

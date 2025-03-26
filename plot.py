@@ -12,14 +12,19 @@ from threading import Lock
 from threading import Thread
 import configparser
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from matplotlib.colors import Normalize
 from matplotlib.dates import DateFormatter
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.patches import Wedge
 import pandas as pd
 from flask import Flask, render_template, jsonify
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 import plotly.io as pio
 import asyncio
-from threading import Lock
+import numpy as np
+from matplotlib.colors import LinearSegmentedColormap
 
 lock = Lock()
 
@@ -86,117 +91,110 @@ def generate_chart(chart_func, file_path):
 ########################################################################################################
 #   Zeiger Chart
 ########################################################################################################
+
 def create_zeiger_chart(file_path):
     """
-    Erstellt ein Zeigerdiagramm basierend auf Konfigurationswerten.
-    Die Werte für obere und untere Grenze, Anzahl der Intervalle und weitere Parameter
-    werden direkt aus der Konfigurationsdatei gelesen.
+
     """
     # Werte aus der Konfigurationsdatei laden
-    obere_grenze = config_get('DEFAULT', 'obere_grenze', 300)  # Standardwert: 300
-    untere_grenze = config_get('DEFAULT', 'untere_grenze', 0)  # Standardwert: 0
-    anzahl_intervalle = config_get('DEFAULT', 'anzahl_intervalle', 5)  # Standardwert: 5 Intervalle
-    axis_font_size = config_get('DEFAULT', 'axis_font_size', 28)
-    number_font_size = config_get('DEFAULT', 'number_font_size', 28)
-    pio.renderers.default = "cdn"
-
-    # Überprüfen der Parameter
-    if anzahl_intervalle <= 0:
-        raise ValueError("Die Anzahl der Intervalle muss größer als 0 sein.")
-    if obere_grenze <= untere_grenze:
-        raise ValueError("Die obere Grenze muss größer als die untere Grenze sein.")
+    obere_grenze = int(config_get('DEFAULT', 'obere_grenze'))
+    untere_grenze = int(config_get('DEFAULT', 'untere_grenze'))
+    axis_font_size = config_get('DEFAULT', 'axis_font_size')
+    number_font_size = config_get('DEFAULT', 'number_font_size')
+    # Anzahl der Werte dynamisch berechnen
+    step_count = len(range(untere_grenze, obere_grenze + 1, 50))  # Anzahl der Werte
+    angles = np.linspace(180, 0, step_count)  # Dynamische Verteilung der Winkel von 180° bis 0°
 
     durchschnitt = get_average_last_24h(file_path)
     # print(f"Durchschnitt: {durchschnitt}")
 
-    # Dynamische Schrittgröße berechnen
-    intervall_groesse = (obere_grenze - untere_grenze) / anzahl_intervalle
-
-    # Farbinterpolation vorbereiten
-    start_color = (211, 211, 211)  # Hellgrau
-    mid_color = (255, 165, 0)  # Orange
-    end_color = (255, 0, 0)  # Rot
-
-    steps = []
-    for i in range(anzahl_intervalle):
-        # Berechnen des Faktors für die Position
-        faktor = i / (anzahl_intervalle - 1)
-
-        # Interpolation zwischen Grau → Orange → Rot
-        if faktor <= 0.5:
-            # Erste Hälfte: von Grau nach Orange
-            faktor_normalisiert = faktor / 0.5
-            color_rgb = interpolate_color(start_color, mid_color, faktor_normalisiert)
-        else:
-            # Zweite Hälfte: von Orange nach Rot
-            faktor_normalisiert = (faktor - 0.5) / 0.5
-            color_rgb = interpolate_color(mid_color, end_color, faktor_normalisiert)
-
-        # Umwandeln von Farbe in hex
-        color_hex = f"rgb({color_rgb[0]},{color_rgb[1]},{color_rgb[2]})"
-
-        # Intervall berechnen
-        step_start = untere_grenze + i * intervall_groesse
-        step_end = step_start + intervall_groesse
-
-        steps.append({'range': [step_start, step_end], 'color': color_hex})
-
-    # print("versuche zeiger diagram zu erstellen")
-
-    # Diagramm erstellen und Layout anpassen
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=durchschnitt,  # Wird in der Durchschnittsberechnung erstellt
-        number={
-            'font': {'size': number_font_size}  # Schriftgröße für die Nummer
-        },
-        gauge={
-            'axis': {
-                'range': [untere_grenze, obere_grenze],  # Anzeigebereich der Achse
-                'tickfont': {'size': axis_font_size}  # Schriftgröße für Achsenbeschriftung
-            },
-            'bar': {'color': "blue"},
-            'steps': steps,
-        }
-    ))
-
-    # HINTERGRUND MIT TRANSPARENZ DEFINIEREN
-    fig.update_layout(
-        paper_bgcolor='rgba(157,223,255,0.6)',  # Hellgelber Hintergrund mit 60 % Transparenz
-        plot_bgcolor='rgba(157,223,255,0.6)'  # Gleiches für den Plotbereich
+    # Benutzerdefinierter Farbverlauf (Hellgelb → Orange → Dunkelrot)
+    custom_colors = LinearSegmentedColormap.from_list(
+        "custom_colormap", ["yellow", "orange", "red", "darkred", "black"]
     )
-    anzeigen_datum = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-    title_font_size = int(config_get('DEFAULT', 'title_font_size'))  # Konvertiert zu Integer
-    title_padding = int(config_get('DEFAULT', 'title_padding'))  # Konvertiert zu Integer
 
-    fig.update_layout(
-        title={
-            'text': f"Durchschnitt pro Stunde<br>vom {anzeigen_datum}",  # Manuell Zeilenumbruch mit <br>
-            'font': {'size': title_font_size},  # Schriftgröße für den Titel
-            'x': 0.5,  # Zentriert den Titel horizontal
-            'xanchor': 'center',  # Fixiert die Zentrierung
-            'y': 0.9  # Platziert den Titel mit etwas Platz vom oberen Rand
-        },
-        margin={
-            't': title_padding + 30,  # Erhöht den oberen Rand deutlich
-            'b': 0  # Unterer Rand bleibt minimal
-        },
-        width=1000,
-        height=800
+    # Halbkreis-Segmente und Farbkonfiguration
+    num_segments = 100  # Höhere Segmentanzahl für glatteren Farbverlauf
+    values = [1] * num_segments  # Gleiche Gewichtung für jedes Segment
+
+    # Farbverlauf über alle Segmente (für gesamten Kreis berechnen)
+    colors = custom_colors(np.linspace(0, 1, num_segments))
+
+    # Plot vorbereiten
+    fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={"aspect": "equal"})
+    fig.subplots_adjust(top=0.8)  # Mehr Platz für den Titel schaffen
+
+    # Hintergrund bearbeiten
+    fig.patch.set_facecolor('lightgrey')  # Hintergrundfarbe des gesamten Bereichs
+    fig.patch.set_alpha(0.5)  # Transparenz der Hintergrundfarbe
+
+    ax.set_facecolor('lightgrey')  # Plot-Hintergrundfarbe
+    ax.patch.set_alpha(0.5)  # Transparenzlevel des Plotbereichs
+
+    # Kreisplot (Segmente von 180° bis 0°):
+    wedges, _ = ax.pie(
+        values,
+        radius=1.2,  # Äußerer Radius des Halbkreises
+        startangle=180,  # Startwinkel bei 180° (oben links)
+        counterclock=False,  # Bewegung im Uhrzeigersinn
+        colors=colors,  # Farbpalette anwenden
+        wedgeprops={'width': 0.55, 'edgecolor': 'none'},  # Segmentbreite + Randfarbe
     )
-    # print("test 4")
-    # Verwenden Sie 'scale', um die DPI zu beeinflussen
-    scale_factor = 2  # Erhöht die Abtastauflösung
-    # Diagramm in HTML umwandeln
-    img_base64_zeiger = base64.b64encode(pio.to_image(fig, format='png', scale=scale_factor)).decode('utf-8')
-    return img_base64_zeiger
+
+    # Nur die oberen Wedges (Halbkreis) aktiv lassen:
+    for i, w in enumerate(wedges):
+        if i >= num_segments // 2:  # Untere Hälfte (50% der Segmente) ausblenden
+            w.set_visible(False)
+
+    # Werte entlang der Skala hinzufügen
+    for value, angle in zip(
+            range(untere_grenze, obere_grenze + 1, 50),  # Dynamische Werte
+            angles  # Passende Winkelpositionen
+    ):
+        x = 1.4 * np.cos(np.radians(angle))  # X-Position auf erweitertem Radius
+        y = 1.4 * np.sin(np.radians(angle))  # Y-Position auf erweitertem Radius
+        ax.text(x, y, f"{value}", fontsize=number_font_size, ha="center", va="center", color="black")
+
+    # Zeiger zeichnen
+    zeiger_winkel = 180 - ((180 - 0) * (durchschnitt / obere_grenze))  # Winkel berechnen
+    zeiger_length = 1.0  # Länge des Zeigers
+    ax.plot(
+        [0, zeiger_length * np.cos(np.radians(zeiger_winkel))],
+        [0, zeiger_length * np.sin(np.radians(zeiger_winkel))],
+        color="black", linewidth=3, zorder=10  # Zeiger einfügen
+    )
+    ax.add_patch(
+        plt.Circle((0, 0), 0.05, color="black", zorder=11)  # Zentrum des Zeigers
+    )
+
+    # Durchschnittswert anzeigen
+    ax.text(0, -0.3, f"Wert: {durchschnitt}", fontsize=14, ha="center", color="black")
+    # ax.text(0, -0.4, "Durchschnitt", fontsize=10, ha="center", color="gray")
+
+    # Titel hinzufügen, mehr Platz berücksichtigen
+    datum = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    fig.suptitle(
+        f"Durchschnitt pro Stunde\nvom {datum}",
+        fontsize=axis_font_size,
+        color="black",
+        y=0.99,  # Titel weiter nach oben verschieben
+    )
+
+    # In Base64 konvertieren
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png", bbox_inches="tight", dpi=300)
+    plt.close(fig)
+    img_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+    buf.close()
+
+    return img_base64
 
 
 ########################################################################################################
 #   Diagramm Tagesverlauf gestern
 ########################################################################################################
 def create_tagesverlauf_chart(file_path):
-    title_padding = config_get("Default", "title_padding")  # 20 als Standardwert
+    title_padding = config_get("DEFAULT", "title_padding")  # 20 als Standardwert
     try:
         # Lese die CSV-Datei ein
         try:
@@ -248,7 +246,7 @@ def create_tagesverlauf_chart(file_path):
             max_y_value = max(df_last_day['Anzahl'].max(), df_last_day['Kritisch'].max()) * 1.05
             # print("max Y Achse berechnen:", max_y_value)
             # Erstelle die linke Y-Achse für die "Anzahl"
-            ax1.bar(x_labels, df_last_day['Anzahl'], color='blue', alpha=0.6, label='Anzahl')
+            ax1.bar(x_labels, df_last_day['Anzahl'], color='blue', alpha=1, label='Anzahl')
             ax1.set_xlabel("Stunde")
             ax1.set_ylabel("Anzahl", color='blue')
             ax1.tick_params(axis='y', labelcolor='blue')
@@ -257,9 +255,9 @@ def create_tagesverlauf_chart(file_path):
             # print("linke achse erstellt", ax1.get_ylim())
             # Erstelle die zweite Y-Achse für "Kritisch"
             ax2 = ax1.twinx()
-            ax2.bar(x_labels, df_last_day['Kritisch'], color='red', alpha=0.6, label='Kritisch')
-            ax2.set_ylabel("davon Kritisch", color='red')
-            ax2.tick_params(axis='y', labelcolor='red')
+            ax2.bar(x_labels, df_last_day['Kritisch'], color='#C72426', alpha=1, label='Kritisch')
+            ax2.set_ylabel("davon überkritisch", color='#C72426')
+            ax2.tick_params(axis='y', labelcolor='#C72426')
             ax2.set_ylim(0, max_y_value)  # Setze den gleichen Maximalwert für ax2
             # print("rechte achse erstellt", ax2.get_ylim())
             # Extrahiere das gestrige Datum aus den Daten
@@ -292,7 +290,7 @@ def create_tagesverlauf_chart(file_path):
 #   Diagramm letzen 7 Tage
 ########################################################################################################
 def create_week_chart(file_path):
-    title_padding = config_get("Default", "title_padding")
+    title_padding = config_get("DEFAULT", "title_padding")
     try:
         # Lese die CSV-Datei ein
         try:
@@ -311,13 +309,13 @@ def create_week_chart(file_path):
         last_week_start = max_date - pd.Timedelta(days=6)  # Beginn der letzten 7 vollständigen Tage
 
         df_last_7_days = df[(df['Timestamp'].dt.floor('D') >= last_week_start) &
-                            (df['Timestamp'].dt.floor('D') <= max_date)]
+                            (df['Timestamp'].dt.floor('D') <= max_date)].copy()
         if df_last_7_days.empty:
             print("Keine Daten für die letzten 7 Tage gefunden.")
             return 0
 
         # Gruppiere die Daten pro Tag und summiere die Werte (datetime bleibt erhalten)
-        df_last_7_days['Date'] = df_last_7_days['Timestamp'].dt.floor('D')  # Nur auf Tagesniveau abrunden
+        df_last_7_days.loc[:, 'Date'] = df_last_7_days['Timestamp'].dt.floor('D')  # Nur auf Tagesniveau abrunden
         daily_summary = df_last_7_days.groupby('Date').agg({
             'Anzahl': 'sum',  # Summiere die Spalte "Anzahl"
             'Kritisch': 'sum'  # Summiere die Spalte "Kritisch"
@@ -350,7 +348,7 @@ def create_week_chart(file_path):
             max_y_value = max(daily_summary['Anzahl'].max(), daily_summary['Kritisch'].max()) * 1.05
 
             # Erstelle die linke Y-Achse für die "Anzahl"
-            ax1.bar(x_labels, daily_summary['Anzahl'], color='blue', alpha=0.6, label='Anzahl')
+            ax1.bar(x_labels, daily_summary['Anzahl'], color='blue', alpha=1, label='Anzahl')
             ax1.set_xlabel("Tag")
             ax1.set_ylabel("Anzahl", color='blue')
             ax1.tick_params(axis='y', labelcolor='blue')
@@ -358,9 +356,9 @@ def create_week_chart(file_path):
 
             # Erstelle die zweite Y-Achse für "Kritisch"
             ax2 = ax1.twinx()
-            ax2.bar(x_labels, daily_summary['Kritisch'], color='red', alpha=0.6, label='Kritisch')
-            ax2.set_ylabel("davon Kritisch", color='red')
-            ax2.tick_params(axis='y', labelcolor='red')
+            ax2.bar(x_labels, daily_summary['Kritisch'], color='#C72426', alpha=1, label='Kritisch')
+            ax2.set_ylabel("davon überkritisch", color='#C72426')
+            ax2.tick_params(axis='y', labelcolor='#C72426')
             ax2.set_ylim(0, max_y_value)  # Setze den gleichen Maximalwert für ax2
 
             # Ermitteln des Start- und Enddatums aus daily_summary
@@ -368,8 +366,9 @@ def create_week_chart(file_path):
             end_datum = daily_summary['Date'].max()  # Letztes Datum im Bereich (spätestes Datum)
 
             # Titel und Legende hinzufügen
-            plt.title(f"7 Tage Übersicht vom {start_datum.strftime('%Y-%m-%d')} bis {end_datum.strftime('%Y-%m-%d')}",
-                      pad=title_padding)
+            plt.title(
+                f"7 - Tage - Übersicht vom {start_datum.strftime('%Y-%m-%d')} bis {end_datum.strftime('%Y-%m-%d')}",
+                pad=title_padding)
             # ax1.legend(loc="upper left")
             # ax2.legend(loc="upper right")
             plt.tight_layout()
@@ -394,7 +393,7 @@ def create_week_chart(file_path):
 #   Diagramm letzen 30 Tage
 ########################################################################################################
 def create_month_chart(file_path):
-    title_padding = config_get("Default", "title_padding")
+    title_padding = config_get("DEFAULT", "title_padding")
     try:
         # Lese die CSV-Datei ein
         try:
@@ -413,7 +412,7 @@ def create_month_chart(file_path):
         last_month_start = max_date - pd.Timedelta(days=29)  # Beginn der letzten 30 vollständigen Tage
 
         df_last_30_days = df[(df['Timestamp'].dt.floor('D') >= last_month_start) &
-                             (df['Timestamp'].dt.floor('D') <= max_date)]
+                             (df['Timestamp'].dt.floor('D') <= max_date)].copy()
         if df_last_30_days.empty:
             print("Keine Daten für die letzten 30 Tage gefunden.")
             return 0
@@ -457,7 +456,7 @@ def create_month_chart(file_path):
             max_y_value = max(daily_summary['Anzahl'].max(), daily_summary['Kritisch'].max()) * 1.05
 
             # Erstelle die linke Y-Achse für die "Anzahl"
-            ax1.bar(x_positions, daily_summary['Anzahl'], width=bar_width, color='blue', alpha=0.6, label='Anzahl')
+            ax1.bar(x_positions, daily_summary['Anzahl'], width=bar_width, color='blue', alpha=1, label='Anzahl')
             ax1.set_xlabel("Tag")
             ax1.set_ylabel("Anzahl", color='blue')
             ax1.tick_params(axis='y', labelcolor='blue')
@@ -465,17 +464,18 @@ def create_month_chart(file_path):
 
             # Erstelle die rechte Y-Achse für "Kritisch"
             ax2 = ax1.twinx()
-            ax2.bar(x_positions, daily_summary['Kritisch'], width=bar_width, color='red', alpha=0.6, label='Kritisch')
-            ax2.set_ylabel("davon Kritisch", color='red')
-            ax2.tick_params(axis='y', labelcolor='red')
+            ax2.bar(x_positions, daily_summary['Kritisch'], width=bar_width, color='#C72426', alpha=1, label='Kritisch')
+            ax2.set_ylabel("davon überkritisch", color='#C72426')
+            ax2.tick_params(axis='y', labelcolor='#C72426')
             ax2.set_ylim(0, max_y_value)  # Gleicher Maximalwert für ax2
             # Ermitteln des Start- und Enddatums aus daily_summary
             start_datum = daily_summary['Date'].min()  # Erstes Datum im Bereich (frühestes Datum)
             end_datum = daily_summary['Date'].max()  # Letztes Datum im Bereich (spätestes Datum)
 
             # Titel und Legende hinzufügen
-            plt.title(f"30 Tage Übersicht  vom {start_datum.strftime('%Y-%m-%d')} bis {end_datum.strftime('%Y-%m-%d')}",
-                      pad=title_padding)
+            plt.title(
+                f"30 - Tage - Übersicht vom {start_datum.strftime('%Y-%m-%d')} bis {end_datum.strftime('%Y-%m-%d')}",
+                pad=title_padding)
             # ax1.legend(loc="upper left")
             # ax2.legend(loc="upper right")
             plt.tight_layout()

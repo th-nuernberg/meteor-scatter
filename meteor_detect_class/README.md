@@ -18,10 +18,15 @@ Please see also [documentation](Dokumentation_Meteor_Detection.docx).
 Install the required libraries:
 
 ```
+(if you are using ubuntu)
+sudo apt install python3 python-is-python3
+sudo apt install portaudio19-dev python3-pyaudio
+
 (Change dir to this subfolder)
-python -m venv venv_ms_detclass
-source venv_ms_detclass/bin/activate
-pip install -r requirements-pi.txt
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-ubuntu.txt
+(pip freeze > requirements-ubuntu.txt)
 ```
 
 ### Usage
@@ -30,6 +35,7 @@ Edit config in `prime_detection.py` as needed:
 
 ```
 C_FILE_PATH_OUT = "/home/meteor/Desktop/testMSOUT/"  # TODO CSV OUT PATH
+C_FILE_PATH_OUT_SPEC = "/home/meteor/Desktop/testMSOUTSpec/ # TODO PATH
 
 C_MS_SPEC_CUT_FACTOR = 8  # TODO Noise Filter
 
@@ -41,7 +47,7 @@ Activate your new virtual environment and run:
 
 ```
 (Change dir to this subfolder)
-source venv_ms_detclass/bin/activate
+source .venv/bin/activate
 python prime_detection.py (old)
 ./prime_watchdog.sh
 ```

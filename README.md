@@ -113,14 +113,14 @@ Install the required libraries:
 
 ```
 (Change dir to this subfolder)
-python -m venv venv_ms_vis
-source venv_ms_vis/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
 ## Usage
 
-Edit config in `prime_detection.py` as needed:
+Edit config in `config.py` as needed:
 
 ```
 DEFAULT_CSV_FOLDER = "/home/meteor/Desktop/testMSOUT/"  # TODO CSV OUT PATH
@@ -130,7 +130,7 @@ Activate your new virtual environment and run:
 
 ```
 (Change dir to this subfolder)
-source venv_ms_vis/bin/activate
+source .venv/bin/activate
 python app.py
 ```
 

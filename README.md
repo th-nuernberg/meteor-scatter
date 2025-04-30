@@ -107,7 +107,12 @@ Creates all charts. If needed resolution of the charts can be manipulated here. 
 seperatly. (300dpi and figsize 10,6 will create a figure with resolution of 3000x1800px, can be reduced if less
 performace is needed).
 
-## Setup
+## Installation and Run (Deployment)
+
+- `cd ../docker`
+- `./build-run-webserver.sh`
+
+## Setup (Development)
 
 Install the required libraries:
 
@@ -118,7 +123,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Usage
+## Usage (Development)
 
 Edit config in `config.py` as needed:
 

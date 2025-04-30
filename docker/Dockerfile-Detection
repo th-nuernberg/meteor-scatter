@@ -3,6 +3,15 @@ FROM python:3.11-slim
 
 RUN apt-get update && apt-get install -y gcc build-essential portaudio19-dev python3-pyaudio
 
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxrender1 \
+    libxext6 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Setze das Arbeitsverzeichnis im Container
 WORKDIR /app
 

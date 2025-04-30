@@ -49,4 +49,4 @@ tzdata
 urllib3
 websocket-client
 wsproto
-cv2
+opencv-python

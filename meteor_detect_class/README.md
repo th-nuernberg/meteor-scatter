@@ -5,7 +5,12 @@ spectrograms.
 
 Please see also [documentation](Dokumentation_Meteor_Detection.docx).
 
-## Installation and Run
+## Installation and Run (Deployment)
+
+- `cd ../docker`
+- `./build-run-detection.sh`
+
+## Installation and Run (Development)
 
 ### Prerequisites
 

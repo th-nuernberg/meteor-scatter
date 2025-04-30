@@ -176,4 +176,13 @@ debug_value = config_get('DEFAULT', 'debug').lower() == 'true'
 if __name__ == '__main__':
     scheduler.start()  # Startet den Scheduler im Hintergrund
 
+    import sys
+
+    # Check if Parameter --docker is set
+    print("Überprüfe, ob Docker-Umgebung erkannt wurde...")
+    
+    if '--docker' in sys.argv:
+        print("Docker-Umgebung erkannt.")
+        os.system("pip freeze > /home/meteor/Documents/meteor-webserver/log-out/requirements-backup.txt")
+
     app.run(host="0.0.0.0", port=5000, debug=debug_value)

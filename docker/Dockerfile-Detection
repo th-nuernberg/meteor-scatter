@@ -4,12 +4,12 @@ FROM python:3.11-slim
 RUN apt-get update && apt-get install -y gcc build-essential portaudio19-dev python3-pyaudio
 
 RUN apt-get update && apt-get install -y \
-    gcc \
     libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxrender1 \
     libxext6 \
+    ffmpeg \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Setze das Arbeitsverzeichnis im Container
@@ -19,13 +19,11 @@ WORKDIR /app
 COPY meteor_detect_class /app
 
 # Installiere Abhängigkeiten (wenn vorhanden)
-#RUN pip install --no-cache-dir -r requirements-generic.txt
 RUN pip install -r requirements-docker.txt
 
 RUN chmod +x prime_watchdog.sh
 
 # Starte das Python-Skript
 #CMD ["python", "main.py"]
-CMD ["bash", "prime_watchdog.sh"]
-#CMD ["./prime_watchdog.sh"]
 #CMD ["ls"]
+CMD ["bash", "prime_watchdog.sh", "--docker"]

@@ -1,5 +1,7 @@
 rm -rf meteor_detect_class
 cp -r ../meteor_detect_class .
+docker stop ms-detect
+docker rm ms-detect
 
 if [ ! -d "mount-detection" ]; then
     mkdir mount-detection

@@ -1,7 +1,8 @@
 rm -rf meteor_webserver
-
 cp -r ../ meteor_webserver
 rm -rf meteor_webserver/meteor_detect_class
+docker stop ms-webserver
+docker rm ms-webserver
 
 if [ ! -d "mount-detection/csv-out" ]; then
     echo "Directory mount-detection/csv-out not exists. Exiting."

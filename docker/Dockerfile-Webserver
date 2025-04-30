@@ -8,7 +8,7 @@ WORKDIR /app
 COPY meteor_webserver /app
 
 # Installiere Abhängigkeiten (wenn vorhanden)
-RUN pip install -r requirements.txt
+RUN pip install -r requirements-docker.txt
 
 # Starte das Python-Skript
 #CMD ["python", "app.py"]

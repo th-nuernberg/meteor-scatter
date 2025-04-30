@@ -34,7 +34,7 @@ class Config:
 
     # Dynamisch ermitteln, wo der Hauptordner liegt
     # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    DEFAULT_CSV_FOLDER = "/home/meteor/Desktop/testMSOUT/"  # TODO Change this
+    DEFAULT_CSV_FOLDER = "/home/meteor/Documents/meteor-detection/csv-out/"  # TODO Change this
     DEFAULT_CSV_STORAGE_PATH = "final_dataframe.csv"
 
     DEFAULT_DEBUG = False

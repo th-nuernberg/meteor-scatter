@@ -14,8 +14,8 @@ import os
 
 # TODO ALERTS
 
-C_FILE_PATH_OUT = "/home/meteor/Desktop/testMSOUT/"  # TODO CSV OUT PATH
-C_FILE_PATH_OUT_SPEC = "/home/meteor/Desktop/testMSOUTSpec/"  # TODO SPEC OUT PATH
+C_FILE_PATH_OUT = "/home/meteor/Documents/meteor-detection/csv-out/"  # TODO CSV OUT PATH
+C_FILE_PATH_OUT_SPEC = "/home/meteor/Documents/meteor-detection/spec-out/"  # TODO SPEC OUT PATH
 
 C_MS_SPEC_CUT_FACTOR = 8  # TODO Noise Filter
 

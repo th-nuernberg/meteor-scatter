@@ -1,3 +1,6 @@
+print("Start Prime Detection Imports...")
+
+import sounddevice
 import pyaudio
 import wave
 import time
@@ -11,6 +14,8 @@ import struct
 import twitchrealtimehandler
 import detector_and_classification as detection
 import os
+
+print("Prime Detection Imports done...")
 
 # TODO ALERTS
 

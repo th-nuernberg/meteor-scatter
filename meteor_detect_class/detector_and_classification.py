@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 
 
-def detect_and_cluster_bursts(image_path, eps=30, min_samples=5, display=True):
+def detect_and_cluster_bursts(image_path, eps=30, min_samples=5, display=True, sample_len_s=30):
     # Bild einlesen und in Graustufen konvertieren
     image = cv2.imread(image_path, cv2.IMREAD_COLOR)
 
@@ -71,19 +71,29 @@ def detect_and_cluster_bursts(image_path, eps=30, min_samples=5, display=True):
         plt.imshow(image)
 
         ax.set_xticks(np.linspace(0, 495, 6))  # 6 Ticks
-        ax.set_xticklabels(np.linspace(0, 25, 6).round(2))  # Zeit in Sekunden
+        ax.set_xticklabels(np.linspace(0, sample_len_s, 6).round(2))  # Zeit in Sekunden
 
         # y-Achse: 500 Hz bis 1500 Hz
-        ax.set_yticks(np.linspace(0, 365, 6))  # 6 Ticks
-        ax.set_yticklabels(np.linspace(800, 1200, 6).round(2))  # Frequenz in Hz
+        # ax.set_yticks(np.linspace(0, 365, 6))  # 6 Ticks
+        # ax.set_yticklabels(np.linspace(800, 1200, 6).round(2))  # Frequenz in Hz
         plt.xlabel('Time [s]')
         plt.ylabel('Frequency [Hz]')
-        plt.title('Spectrogram 25 Seconds')
+
+        # X goes from 0 to 30 seconds
+        # ax.set_xticks(np.linspace(0, 30, 6))
+        # ax.set_xticklabels(np.linspace(0, 30, 6).round(2))
+
+        title_str = 'Spectrogram n Seconds\nKritisch: ' + str(len(critical_bursts)) + '\nNicht Kritisch: ' + str(len(
+            non_critical_bursts))
+        plt.title(title_str)
         # plt.yscale()
-        plt.title("Burst-Erkennung und Clusterbildung mit ORB und DBSCAN")
+        # plt.title("Burst-Erkennung und Clusterbildung mit ORB und DBSCAN")
         plt.savefig('spectrogram2detected.jpg', format='jpg', bbox_inches='tight', pad_inches=0)
         if display:
             plt.show()
+
+        print(f"Anzahl der Bursts Kritisch: {len(critical_bursts)}")
+        print(f"Anzahl der Bursts Nicht Kritisch: {len(non_critical_bursts)}")
 
     return bursts, unique_labels, burst_positions, critical_bursts, non_critical_bursts
 

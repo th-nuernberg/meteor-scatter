@@ -19,18 +19,23 @@ print("Prime Detection Imports done...")
 
 # TODO ALERTS
 
-C_FILE_PATH_OUT = "/home/meteor/Documents/meteor-detection/csv-out/"  # TODO CSV OUT PATH
-C_FILE_PATH_OUT_SPEC = "/home/meteor/Documents/meteor-detection/spec-out/"  # TODO SPEC OUT PATH
+# C_FILE_PATH_OUT = "/home/meteor/Documents/meteor-detection/csv-out/"  # TODO CSV OUT PATH
+# C_FILE_PATH_OUT_SPEC = "/home/meteor/Documents/meteor-detection/spec-out/"  # TODO SPEC OUT PATH
 
-C_MS_SPEC_CUT_FACTOR = 8  # TODO Noise Filter
+C_FILE_PATH_OUT = "/Users/maximilianbundscherer/Desktop/meteor/out/"  # TODO CSV OUT PATH
+C_FILE_PATH_OUT_SPEC = "/Users/maximilianbundscherer/Desktop/meteor/specOut/"  # TODO SPEC OUT PATH
+
+# C_MS_SPEC_CUT_FACTOR = 8  # Twitch  # TODO Noise Filter
+C_MS_SPEC_CUT_FACTOR = 9  # TL  # TODO Noise Filter
 
 C_MS_CLUSTER_MIN_SAMPLES = 5  # TODO Cluster Filter
 C_MS_CLUSTER_EPSILON = 30  # TODO Cluster Filter
 
 C_FILE_PATH_SPEC = "/tmp/spectrogram2.jpg"
-C_DISPLAY = False
+C_DISPLAY = True
 C_SAMPLE_RATE = 5000
 C_SEG_LEN = 30
+# C_SEG_LEN = 60 + 20 # TL BURST
 
 # Assert Env
 assert os.path.exists(C_FILE_PATH_OUT), f"Path not found: {C_FILE_PATH_OUT}"
@@ -50,15 +55,44 @@ def end_time_meas(idk: str):
     print(f"Time for {idk}: {time.total_seconds()} seconds")
 
 
+import scipy.io.wavfile as wav
+
+
+class WavSegmentReader:
+    def __init__(self, file_path, segment_length, sample_rate):
+        self.sample_rate, self.audio_data = wav.read(file_path)
+        assert self.sample_rate == sample_rate, f"Sample rate mismatch: WAV={self.sample_rate}, expected={sample_rate}"
+        if len(self.audio_data.shape) == 1:
+            self.audio_data = np.expand_dims(self.audio_data, axis=1)  # make 2D
+        self.segment_length = segment_length
+        self.current_index = 0
+        self.total_samples = self.audio_data.shape[0]
+
+    def grab(self):
+        segment_samples = self.segment_length * self.sample_rate
+        if self.current_index + segment_samples > self.total_samples:
+            raise StopIteration("WAV file fully processed.")
+        segment = self.audio_data[self.current_index:self.current_index + segment_samples]
+        self.current_index += segment_samples
+        return segment
+
+
 # Augio Grabber
-audio_grabber = twitchrealtimehandler.TwitchAudioGrabber(
-    twitch_url="https://www.twitch.tv/astronomiemuseum",
-    # twitch_url="https://www.twitch.tv/noway4u_sir",
-    blocking=True,  # wait until a segment is available
-    segment_length=C_SEG_LEN,  # segment length in seconds
-    rate=C_SAMPLE_RATE,  # sampling rate of the audio
-    channels=1,  # number of channels
-    dtype=np.int16  # quality of the audio could be [np.int16, np.int32, np.float32, np.float64]
+# audio_grabber = twitchrealtimehandler.TwitchAudioGrabber(
+#     twitch_url="https://www.twitch.tv/astronomiemuseum",
+#     # twitch_url="https://www.twitch.tv/noway4u_sir",
+#     blocking=True,  # wait until a segment is available
+#     segment_length=C_SEG_LEN,  # segment length in seconds
+#     rate=C_SAMPLE_RATE,  # sampling rate of the audio
+#     channels=1,  # number of channels
+#     dtype=np.int16  # quality of the audio could be [np.int16, np.int32, np.float32, np.float64]
+# )
+
+
+audio_grabber = WavSegmentReader(
+    file_path="/Users/maximilianbundscherer/Desktop/meteor/data/test2.wav",  # Pfad zur WAV-Datei
+    segment_length=C_SEG_LEN,
+    sample_rate=C_SAMPLE_RATE
 )
 
 
@@ -70,9 +104,26 @@ def plot_spectrogram(iq_segment, fs, display=True, vmin=10, vmax=30):
 
     Pxx, freqs, bins, im = plt.specgram(iq_segment[:, 0], Fs=fs, NFFT=NFFT,
                                         noverlap=NFFT // 2)  # 29 40,vmin=29, vmax=40
+
+    # PSD
+    # plt.figure(figsize=(10, 5))
+    # plt.plot(freqs, 10 * np.log10(Pxx))
+    # plt.xlabel('Frequency [Hz]')
+    # plt.ylabel('Power/Frequency [dB/Hz]')
+    # plt.title('Power Spectral Density')
+    # plt.xlim(0, 2000)  # Frequenzbereich von 0 bis 2000 Hz
+    # # plt.ylim(-100, 0)  # dB-Bereich von -100 bis 0
+    # plt.grid()
+    # plt.show()
+    # plt.close("all")
+
     # Frequenzbereich in dem nur Rauschen vorkommt und keine Bursts
-    lower_freq = 250
-    upper_freq = 800
+    lower_freq = 570  # TL
+    upper_freq = 620  # TL
+
+    # lower_freq = 250  # TWITCH
+    # upper_freq = 800  # TWITCH
+
     noise_band = (freqs >= lower_freq) & (freqs <= upper_freq)
     # Bandbreite fuer das Frequenzband
     bandwidth = np.sum(noise_band) * delta_f  # Bandbreite in Hz
@@ -86,17 +137,29 @@ def plot_spectrogram(iq_segment, fs, display=True, vmin=10, vmax=30):
     Pxx_db = 10 * np.log10(Pxx)  # in dB
     Pxx_db[np.isinf(Pxx_db)] = -np.inf
 
+    print("Recommend vmin", power_density_db_hz / factor + C_MS_SPEC_CUT_FACTOR)
+
     plt.imshow(Pxx_db, aspect='auto', origin='lower', extent=[bins[0], bins[-1], freqs[0], freqs[-1]],
-               vmin=power_density_db_hz / factor + C_MS_SPEC_CUT_FACTOR, vmax=40)
+               vmin=power_density_db_hz / factor + C_MS_SPEC_CUT_FACTOR,
+
+               # vmax=40  # Default TWICH
+               
+               # vmax=60  # Test TL
+               vmax=80  # TL Rec
+               )
     # plt.xlabel('Time [s]')
     # plt.ylabel('Frequency [Hz]')
     # plt.title('Spectrogram 25 Seconds')
-    plt.ylim(800, 1200)  # Frequenzbereich von 0 bis 2000 Hz
+
+    # plt.ylim(800, 1200)  # Twitch Frequenzbereich
+    plt.ylim(550, 900)  # TL Frequenzbereich
+
     # plt.colorbar(label='Leistung/Frequenz (dB/Hz)')
     fig = plt.axis('off')
     # plt.tight_layout()
     plt.savefig(C_FILE_PATH_SPEC, format='jpg', bbox_inches='tight', pad_inches=0)
     if display:
+        pass
         plt.show()
     # plt.show(block=False)
     del Pxx, Pxx_db, band_power
@@ -191,7 +254,8 @@ while True:
     image_path1 = C_FILE_PATH_SPEC
     print("Starte Burst-Erkennung und Clusterbildung...")
     bursts, unique_labels, burst_positions, critical_bursts, non_critical_bursts = detection.detect_and_cluster_bursts(
-        image_path1, display=C_DISPLAY, eps=C_MS_CLUSTER_EPSILON, min_samples=C_MS_CLUSTER_MIN_SAMPLES)
+        image_path1, display=C_DISPLAY, eps=C_MS_CLUSTER_EPSILON, min_samples=C_MS_CLUSTER_MIN_SAMPLES,
+        sample_len_s=C_SEG_LEN)
     print("Burst-Erkennung und Clusterbildung abgeschlossen.")
     end_time_meas("detect_and_cluster_bursts")
 

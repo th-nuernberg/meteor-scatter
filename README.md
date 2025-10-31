@@ -1,5 +1,7 @@
 # Meteor Scatter
 
+**Note**: If you are here regarding the publication tbd: This page shows the *ML-based* approach. Click [here](dsp/) for the *DSP-based* approach.
+
 This project was developed as part of a student project. The aim was to detect and classify meteors using ML methods.
 
 The project consists of two parts: the **Meteor Detection & Classification** and the **Flask Server**. The meteor

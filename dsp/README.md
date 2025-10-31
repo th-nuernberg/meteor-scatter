@@ -6,8 +6,6 @@
 
 Click the image below to watch a video demonstration.
 
-<a href="https://www.youtube.com/watch?v=pJzIpvsYMjg">
-  <img src="resources/youtube.png" alt="Visualization on YouTube" style="max-width:400px; height:auto;">
-</a>
+[![Visualization on YouTube](resources/youtube.png)](https://www.youtube.com/watch?v=pJzIpvsYMjg)
 
 tbd

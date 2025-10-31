@@ -4,6 +4,8 @@
 
 ## Visualization
 
-[![Visualization on YouTube](https://img.youtube.com/vi/pJzIpvsYMjg/0.jpg)](https://www.youtube.com/watch?v=pJzIpvsYMjg)
+Click the image below to watch a video demonstration.
+
+[![Visualization on YouTube](resources/youtube.png)](https://www.youtube.com/watch?v=pJzIpvsYMjg)
 
 tbd

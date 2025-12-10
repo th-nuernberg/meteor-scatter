@@ -5,6 +5,8 @@ import base64
 from venv import create
 import matplotlib
 
+from LocalData import LocalData
+
 matplotlib.use('Agg')  # Sicherstellen, dass Agg-Backend verwendet wird
 import time
 import threading
@@ -450,10 +452,47 @@ def create_month_chart(file_path):
             # X-Beschriftungen mit den Tagen
             x_labels = daily_summary['Date'].dt.strftime('%d').tolist()
             n = 2  # Zeigt jede zweite Beschriftung an (kann nach Bedarf angepasst werden)
-            plt.xticks(x_positions[::n], x_labels[::n], rotation=45)  # Nur jede n-te Position anzeigen
 
             # Berechnung des maximalen y-Wertes basierend auf beiden Datenreihen
             max_y_value = max(daily_summary['Anzahl'].max(), daily_summary['Kritisch'].max()) * 1.05
+
+            for item in LocalData.data_items:
+
+                # Maske für diesen Bereich
+                mask = (daily_summary['Date'] >= item.start) & (daily_summary['Date'] <= item.end)
+
+                if not mask.any():
+                    continue  # Bereich liegt nicht im Diagramm → überspringen
+
+                # Positionsindizes holen
+                pos = mask.to_numpy().nonzero()[0]
+                pos_start = pos[0]
+                pos_end = pos[-1]
+
+                # x-Koordinaten
+                x_start = x_positions[pos_start] - bar_width / 2
+                x_end = x_positions[pos_end] + bar_width / 2
+
+                # Farbe abhängig vom Bereich oder statisch
+                ax1.axvspan(x_start, x_end, alpha=0.3, color="yellow")
+
+                x_center = (x_start + x_end) / 2
+
+                ax1.text(
+                    x_center,
+                    max_y_value * 1.02,  # etwas über dem höchsten Balken
+                    item.label,  # Label aus deinem DateRange
+                    ha="center", va="bottom",
+                    fontsize=9,
+                    bbox=dict(
+                        facecolor="orange",
+                        edgecolor="black",
+                        boxstyle="round,pad=0.25",
+                        alpha=0.8
+                    )
+                )
+
+            plt.xticks(x_positions[::n], x_labels[::n], rotation=45)  # Nur jede n-te Position anzeigen
 
             # Erstelle die linke Y-Achse für die "Anzahl"
             ax1.bar(x_positions, daily_summary['Anzahl'], width=bar_width, color='blue', alpha=1, label='Anzahl')

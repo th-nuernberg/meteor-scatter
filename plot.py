@@ -456,7 +456,7 @@ def create_month_chart(file_path):
             # Berechnung des maximalen y-Wertes basierend auf beiden Datenreihen
             max_y_value = max(daily_summary['Anzahl'].max(), daily_summary['Kritisch'].max()) * 1.05
 
-            for item in LocalData.data_items:
+            for item in LocalData.overwrite_years(LocalData.data_items):
 
                 # Maske für diesen Bereich
                 mask = (daily_summary['Date'] >= item.start) & (daily_summary['Date'] <= item.end)

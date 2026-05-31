@@ -72,6 +72,9 @@ def plot_spectrogram(iq_segment, fs, display=True, vmin=10, vmax=30):
     # Bandbreite fuer das Frequenzband
     bandwidth = np.sum(noise_band) * delta_f  # Bandbreite in Hz
 
+    # epsilon = 1e-10
+    # Pxx += epsilon
+
     # Gesamte Leistung in diesem Frequenzband
     band_power = np.sum(Pxx[noise_band])  # Summe der Leistung im Frequenzband
     power_density_db_hz = 10 * np.log10(band_power / bandwidth)

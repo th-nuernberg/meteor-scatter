@@ -18,7 +18,8 @@ import shutil
 C_FILE_PATH_OUT = "/home/meteor/Documents/meteor-detection/csv-out/"  # TODO CSV OUT PATH
 C_FILE_PATH_OUT_SPEC = "/home/meteor/Documents/meteor-detection/spec-out/"  # TODO SPEC OUT PATH
 
-C_MS_SPEC_CUT_FACTOR = 8  # TODO Noise Filter
+# C_MS_SPEC_CUT_FACTOR = 8  # TODO Noise Filter
+C_MS_SPEC_CUT_FACTOR = 12  # TODO Noise Filter
 
 C_MS_CLUSTER_MIN_SAMPLES = 5  # TODO Cluster Filter
 C_MS_CLUSTER_EPSILON = 30  # TODO Cluster Filter
@@ -87,8 +88,13 @@ def plot_spectrogram(iq_segment, fs, display=True, vmin=10, vmax=30):
     Pxx_db = 10 * np.log10(Pxx)  # in dB
     Pxx_db[np.isinf(Pxx_db)] = -np.inf
 
+    temp_vmin = power_density_db_hz / factor + C_MS_SPEC_CUT_FACTOR
+    tmp_vmax = 40
+
+    print("My current vmin is: ", temp_vmin)
+
     plt.imshow(Pxx_db, aspect='auto', origin='lower', extent=[bins[0], bins[-1], freqs[0], freqs[-1]],
-               vmin=power_density_db_hz / factor + C_MS_SPEC_CUT_FACTOR, vmax=40)
+               vmin=temp_vmin, vmax=tmp_vmax)
     # plt.xlabel('Time [s]')
     # plt.ylabel('Frequency [Hz]')
     # plt.title('Spectrogram 25 Seconds')
@@ -100,7 +106,7 @@ def plot_spectrogram(iq_segment, fs, display=True, vmin=10, vmax=30):
 
     plt.figure()
     plt.imshow(Pxx_db, aspect='auto', origin='lower', extent=[bins[0], bins[-1], freqs[0], freqs[-1]],
-               vmax=40)
+               vmax=tmp_vmax)
     plt.ylim(800, 1200)
     plt.axis('off')
     plt.savefig(C_FILE_PATH_SPEC_DEBUG_NO_VMIN, format='jpg', bbox_inches='tight', pad_inches=0)
